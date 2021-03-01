@@ -1,3 +1,5 @@
+#Import statement
+
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -14,9 +16,13 @@ import yfinance as yf
 
 rcParams["figure.figsize"]= 20,10
 
+#Downloading the data
+
 apple = yf.download('AAPL', start='2015-01-01',end='2019-12-31',progress=False)
 
 print(apple.head(15))
+
+#Cleaning data
 
 apple = apple.dropna()
 print(apple)
@@ -27,3 +33,45 @@ plt.plot(apple["Open"],label='Open Price history')
 plt.xlabel('Date',fontsize=18)
 plt.ylabel('Open Price',fontsize=18)
 plt.show()
+
+#Preprocessing
+
+data = apple.filter(['Close'])
+
+dataset = data.values
+
+apple_training_data = int(np.ceil( len(dataset) * .8 ))
+
+print(apple_training_data)
+
+scaler = MinMaxScaler(feature_range=(0,1))
+scaled_data = scaler.fit_transform(dataset)
+
+print(scaled_data)
+
+train_data = scaled_data[0:int(apple_training_data), :]
+
+x_train = []
+y_train = []
+
+for i in range(60, len(train_data)):
+    x_train.append(train_data[i-60:i, 0])
+    y_train.append(train_data[i, 0])
+    if i<= 61:
+        print(x_train)
+        print(y_train)
+        print()
+        
+ 
+x_train, y_train = np.array(x_train), np.array(y_train)
+x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+
+#Analysis
+
+model = Sequential()
+model.add(LSTM(128, return_sequences=True, input_shape= (x_train.shape[1], 1)))
+model.add(LSTM(64, return_sequences=False))
+model.add(Dense(25))
+model.add(Dense(1))
+
+print(model.summary())
