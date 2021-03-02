@@ -99,6 +99,8 @@ train = data[:training_data_len]
 valid = data[training_data_len:]
 valid['Predictions'] = predictions
 
+#Results
+
 plt.figure(figsize=(16,8))
 plt.title('Apple Prediction Model')
 plt.xlabel('Date', fontsize=18)
